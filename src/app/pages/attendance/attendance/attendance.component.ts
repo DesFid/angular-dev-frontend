@@ -11,8 +11,8 @@ import {AttendanceService} from '../../../services/attendance/attendance.service
 import {Attendance, Workday, Task} from '../../../models/attendance/models.index';
 import {User, Role} from '../../../models/auth/models.index';
 import {Event, Col} from '../../../models/setting/models.index';
-import {Moment} from 'moment';
 import * as moment from 'moment';
+import {Institution} from '../../../models/ignug/institution';
 
 @Component({
     selector: 'app-attendance',
@@ -41,10 +41,11 @@ export class AttendanceComponent implements OnInit {
     selectedTask: Task;
     formTask: FormGroup;
     selectedTab: number;
-    displayFormTask: boolean;
     historyAttendances: Attendance[];
     data: any;
     options: any;
+    institution: Institution;
+    percentages: number[];
 
     constructor(private _breadcrumbService: BreadcrumbService,
                 private _attendanceService: AttendanceService,
@@ -61,6 +62,7 @@ export class AttendanceComponent implements OnInit {
         this.primengConfig.ripple = true;
         this.role = JSON.parse(localStorage.getItem('role')) as Role;
         this.user = JSON.parse(localStorage.getItem('user')) as User;
+        this.institution = JSON.parse(localStorage.getItem('institution')) as Institution;
         this.colsActivies = [
             {field: 'name', header: 'ACTIVIDAD'}
         ];
@@ -71,6 +73,7 @@ export class AttendanceComponent implements OnInit {
         this.historyAttendances = [];
         this.selectedDate = new Date();
         this.currentDate = moment();
+        this.percentages = [10, 20, 30, 40, 50, 60, 70, 80, 90, 100];
     }
 
     ngOnInit() {
@@ -93,9 +96,8 @@ export class AttendanceComponent implements OnInit {
     }
 
     getAttendances() {
-        const params = '?user_id=' + this.user.id + '&page=3';
         this._spinner.show();
-        this._attendanceService.get('attendances/user_attendances' + params).subscribe(response => {
+        this._attendanceService.get('attendances/user_attendances').subscribe(response => {
             this._spinner.hide();
             this.attendances = response['data'];
             this.fillFullCalendar();
@@ -110,9 +112,8 @@ export class AttendanceComponent implements OnInit {
     }
 
     getHistoryTasks() {
-        const params = '?user_id=' + this.user.id;
         this._spinner.show();
-        this._attendanceService.post('attendances/user_history_attendances' + params, {
+        this._attendanceService.post('attendances/user_history_attendances', {
             start_date: this.selectedDate.toDateString(),
             end_date: this.selectedDate.toDateString()
         }).subscribe(response => {
@@ -129,9 +130,8 @@ export class AttendanceComponent implements OnInit {
     }
 
     getAttendance() {
-        const params = '?user_id=' + this.user.id;
         this._spinner.show();
-        this._attendanceService.get('attendances/user_current_day' + params).subscribe(response => {
+        this._attendanceService.get('attendances/user_current_day').subscribe(response => {
             this._spinner.hide();
             this.attendance = response['data'];
             this.currentDate = moment(this.attendance.date);
@@ -146,13 +146,13 @@ export class AttendanceComponent implements OnInit {
     }
 
     createOrUpdateTask() {
-        const params = '?user_id=' + this.user.id;
-        this.selectedTask.percentage_advance = this.formTask.controls['percentage_advance'].value;
+        // this.selectedTask.percentage_advance = this.formTask.controls['percentage_advance'].value;
+        this.selectedTask.percentage_advance = 100; // temporalmente hasta que se defina bien el proceso
         this.selectedTask.description = '';
+        this.formTask.controls['percentage_advance'].setValue('1');
         this._spinner.show();
-        this._attendanceService.post('tasks' + params, {task: this.selectedTask}).subscribe(response => {
+        this._attendanceService.post('tasks', {task: this.selectedTask}).subscribe(response => {
             this._spinner.hide();
-            this.displayFormTask = false;
             this.attendance = response['data'];
             this.selectedDate = new Date();// para que se pueda visualizar la actividad cread
             this.getAttendances();
@@ -179,7 +179,7 @@ export class AttendanceComponent implements OnInit {
         this._confirmationService.confirm({
             message: '¿Está seguro de eliminar el registro?',
             header: 'Confirmiación de elimnación',
-            icon: 'pi pi-exclamation-triangle',
+            icon: 'pi pi-trash',
             rejectButtonStyleClass: 'p-button-text',
             accept: () => {
                 this._spinner.show();
@@ -208,17 +208,16 @@ export class AttendanceComponent implements OnInit {
         });
     }
 
-    createWorkday(type: string) {
+    startWorkday(type: string) {
         this.msgsErrors = [];
         this.checked = false;
-        const params = '?user_id=' + this.user.id;
         this.workday = {
             description: (type === 'WORK') ? 'JORNADA' : 'ALMUERZO',
             type: {code: type}
         };
         this.selectedTab = 0;
         this._spinner.show();
-        this._attendanceService.post('workdays/start_day' + params, {workday: this.workday}).subscribe(response => {
+        this._attendanceService.post('workdays/start_day', {workday: this.workday}).subscribe(response => {
             this._spinner.hide();
             this.attendance = response['data'];
             this.getAttendances();
@@ -229,13 +228,14 @@ export class AttendanceComponent implements OnInit {
                 summary: error.error.msg.summary,
                 detail: error.error.msg.detail,
             }];
+            this.getAttendance();
         });
     }
 
     endWorkday(workday: Workday) {
         this._confirmationService.confirm({
-            message: '¿Está seguro de finalizar?',
-            header: 'Confirmiación de finalización',
+            message: '¿Está seguro de finalizar ' + workday.type.name.toLowerCase() + '?',
+            header: 'Confirmiación de finalización de ' + workday.type.name.toLowerCase(),
             icon: 'pi pi-exclamation-triangle',
             rejectButtonStyleClass: 'p-button-text',
             accept: () => {
@@ -261,8 +261,7 @@ export class AttendanceComponent implements OnInit {
     }
 
     getProcesses() {
-        const params = '?role_id=' + this.role.id;
-        this._attendanceService.get('attendances/processes' + params).subscribe(response => {
+        this._attendanceService.get('tasks/processes').subscribe(response => {
             this.processes = response['data'];
         }, error => {
             this.msgsErrors = [{
@@ -323,9 +322,8 @@ export class AttendanceComponent implements OnInit {
     }
 
     fillChart() {
-        const params = '?user_id=' + this.user.id + '&role_id=' + this.role.id;
         this._spinner.show();
-        this._attendanceService.get('tasks/total_processes' + params).subscribe(response => {
+        this._attendanceService.get('tasks/total_processes').subscribe(response => {
             this._spinner.hide();
             const data = response['data']['data'];
             const labels = response['data']['labels'];

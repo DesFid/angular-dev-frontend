@@ -3,19 +3,17 @@ import {Router} from '@angular/router';
 import {FormBuilder, FormGroup, Validators} from '@angular/forms';
 import {ConfirmationService, Message, MessageService, PrimeNGConfig} from 'primeng/api';
 import {BreadcrumbService} from '../../../shared/breadcrumb.service';
-import dayGridPlugin from '@fullcalendar/daygrid';
-import timeGridPlugin from '@fullcalendar/timegrid';
-import interactionPlugin from '@fullcalendar/interaction';
 import {NgxSpinnerService} from 'ngx-spinner';
 import {AttendanceService} from '../../../services/attendance/attendance.service';
 import {Attendance, Workday, Task} from '../../../models/attendance/models.index';
 import {User, Role} from '../../../models/auth/models.index';
 import {Event, Col} from '../../../models/setting/models.index';
-import {Moment} from 'moment';
 import * as moment from 'moment';
 import {environment} from '../../../../environments/environment';
 import {Institution} from '../../../models/ignug/institution';
-import {element} from 'protractor';
+import {HttpParams} from '@angular/common/http';
+import * as fileSaver from 'file-saver';
+import {format} from 'url';
 
 @Component({
     selector: 'app-administration-laboral',
@@ -65,6 +63,7 @@ export class AdministrationComponent implements OnInit {
     dialogFormTask: boolean;
     dialogFormWorkday: boolean;
     institution: Institution;
+    selectedDates: Date;
 
     constructor(private _breadcrumbService: BreadcrumbService,
                 private _attendanceService: AttendanceService,
@@ -92,6 +91,7 @@ export class AdministrationComponent implements OnInit {
         this.totalAttendances = 0;
         this.processes = [];
         this.selectedTab = 0;
+        this.selectedTask = {type: {}};
         this.historyAttendances = [];
         this.selectedDate = new Date();
         this.currentDate = moment();
@@ -118,41 +118,43 @@ export class AdministrationComponent implements OnInit {
             end_time: [''],
             user: [''],
             type: [''],
-            observations: ['', Validators.required],
+            observation: ['', Validators.required],
         });
     }
 
     buildFormTask() {
         this.formTask = this._fb.group({
-            percentage_advance: ['1', Validators.required],
+            percentage_advance: ['100', Validators.required],
+            observation: ['', Validators.required]
         });
     }
 
     getAttendances() {
-        const params = '?user_id=' + this.user.id + '&institution_id=' + this.institution.id;
         this._spinner.show();
-        this._attendanceService.post('attendances/current_day' + params, {date: this.selectedDate.toDateString()}).subscribe(response => {
-            this._spinner.hide();
-            this.users = response['data'];
-            this.users = this.users.filter(element => element.institutions.length > 0);
-            this.usersActivities = response['data'];
-            this.usersActivities = this.usersActivities.filter(element => element.institutions.length > 0);
-            this.totalAttendances = 0;
-            this.users.forEach(user => {
-                if (user.attendance !== null) {
-                    this.totalAttendances++;
-                }
+        const params = new HttpParams().append('institution_id', this.institution.id.toString());
+        this._attendanceService.post('attendances/current_day', {date: this.selectedDate.toDateString()}, params)
+            .subscribe(response => {
+                this._spinner.hide();
+                this.users = response['data'];
+                this.users = this.users.filter(element => element.institutions.length > 0);
+                this.usersActivities = response['data'];
+                this.usersActivities = this.usersActivities.filter(element => element.institutions.length > 0);
+                this.totalAttendances = 0;
+                this.users.forEach(user => {
+                    if (user.attendance !== null) {
+                        this.totalAttendances++;
+                    }
+                });
+                this.fillChartAttendances();
+                this.selectFilter();
+            }, error => {
+                this._spinner.hide();
+                this.msgsErrors = [{
+                    severity: 'error',
+                    summary: error.error.msg.summary,
+                    detail: error.error.msg.detail,
+                }];
             });
-            this.fillChartAttendances();
-            this.selectFilter();
-        }, error => {
-            this._spinner.hide();
-            this.msgsErrors = [{
-                severity: 'error',
-                summary: error.error.msg.summary,
-                detail: error.error.msg.detail,
-            }];
-        });
     }
 
     selectFilter() {
@@ -173,9 +175,8 @@ export class AdministrationComponent implements OnInit {
     }
 
     getHistoryTasks() {
-        const params = '?user_id=' + this.user.id;
         this._spinner.show();
-        this._attendanceService.post('attendances/user_history_attendances' + params, {
+        this._attendanceService.post('attendances/user_history_attendances', {
             start_date: this.selectedDate.toDateString(),
             end_date: this.selectedDate.toDateString()
         }).subscribe(response => {
@@ -192,15 +193,20 @@ export class AdministrationComponent implements OnInit {
     }
 
     createOrUpdateTask() {
-        const params = '?user_id=' + this.user.id;
+        const params = new HttpParams().append('user_id', this.selectedUser.id.toString())
+            .append('institution_id', this.institution.id.toString())
+            .append('date', this.selectedDate.getFullYear() + '-' + (this.selectedDate.getMonth() + 1) + '-' + this.selectedDate.getDate());
+
         this.selectedTask.percentage_advance = this.formTask.controls['percentage_advance'].value;
+        this.selectedTask.observation = this.formTask.controls['observation'].value;
         this.selectedTask.description = '';
+        this.formTask.controls['percentage_advance'].setValue('1');
+        this.formTask.controls['observation'].setValue('');
         this._spinner.show();
-        this._attendanceService.post('tasks' + params, {task: this.selectedTask}).subscribe(response => {
+        this._attendanceService.post('attendances/register_tasks', {task: this.selectedTask}, params).subscribe(response => {
             this._spinner.hide();
             this.displayFormTask = false;
             this.attendance = response['data'];
-            this.selectedDate = new Date();// para que se pueda visualizar la actividad cread
             this.getAttendances();
             this.getHistoryTasks();
             this.fillChartActivities();
@@ -225,7 +231,7 @@ export class AdministrationComponent implements OnInit {
         this._confirmationService.confirm({
             message: '¿Está seguro de eliminar el registro?',
             header: 'Confirmiación de elimnación',
-            icon: 'pi pi-exclamation-triangle',
+            icon: 'pi pi-trash',
             rejectButtonStyleClass: 'p-button-text',
             accept: () => {
                 this._spinner.show();
@@ -258,7 +264,7 @@ export class AdministrationComponent implements OnInit {
             id: this.formWorkday.controls['id'].value,
             start_time: this.formWorkday.controls['start_time'].value,
             end_time: this.formWorkday.controls['end_time'].value,
-            observations: this.formWorkday.controls['observations'].value
+            observation: this.formWorkday.controls['observation'].value
         };
         this._spinner.show();
         this._attendanceService.update('attendances/day', {workday: this.workday}).subscribe(response => {
@@ -276,18 +282,19 @@ export class AdministrationComponent implements OnInit {
     }
 
     startWorkday() {
-        const params = '?user_id=' + this.formWorkday.controls['user'].value['id'];
+        const params = new HttpParams().append('user_id', this.selectedUser.id.toString())
+            .append('institution_id', this.institution.id.toString());
         this.workday = {
             description: this.formWorkday.controls['description'].value,
             start_time: this.formWorkday.controls['start_time'].value,
             type: this.formWorkday.controls['type'].value,
-            observations: this.formWorkday.controls['observations'].value
+            observation: this.formWorkday.controls['observation'].value
         };
         this._spinner.show();
-        this._attendanceService.post('attendances/start_day' + params, {
+        this._attendanceService.post('attendances/start_day', {
             workday: this.workday,
             date: this.selectedDate.toDateString()
-        }).subscribe(response => {
+        }, params).subscribe(response => {
             this._spinner.hide();
             this.attendance = response['data'];
             this.getAttendances();
@@ -305,7 +312,7 @@ export class AdministrationComponent implements OnInit {
         this.workday = {
             id: this.formWorkday.controls['id'].value,
             end_time: this.formWorkday.controls['end_time'].value,
-            observations: this.formWorkday.controls['observations'].value
+            observation: this.formWorkday.controls['observation'].value
         };
         this._spinner.show();
         this._attendanceService.update('attendances/end_day', {workday: this.workday}).subscribe(response => {
@@ -323,8 +330,7 @@ export class AdministrationComponent implements OnInit {
     }
 
     getProcesses() {
-        const params = '?role_id=' + this.role.id;
-        this._attendanceService.get('attendances/processes' + params).subscribe(response => {
+        this._attendanceService.get('attendances/processes').subscribe(response => {
             this.processes = response['data'];
         }, error => {
             this.msgsErrors = [{
@@ -354,7 +360,7 @@ export class AdministrationComponent implements OnInit {
 
     fillChartAttendances() {
         this.dataAttendances = {
-            labels: ['Presentes', 'Ausentes'],
+            labels: ['Presentes: ' + this.totalAttendances, 'Ausentes: ' + (this.users.length - this.totalAttendances)],
             datasets: [
                 {
                     data: [this.totalAttendances, this.users.length - this.totalAttendances],
@@ -371,11 +377,15 @@ export class AdministrationComponent implements OnInit {
 
     fillChartActivities() {
         this._spinner.show();
-        this._attendanceService.get('attendances/total_processes').subscribe(response => {
+        const params = new HttpParams().append('institution_id', this.institution.id.toString());
+        this._attendanceService.get('attendances/total_processes', params).subscribe(response => {
             this._spinner.hide();
             const data = response['data']['data'];
             const labels = response['data']['labels'];
             const backgroundColor = response['data']['background_color'];
+            for (let i = 0; i < data.length; i++) {
+                labels[i] = labels[i] + ': ' + data[i];
+            }
             this.dataActivities = {
                 labels,
                 datasets: [
@@ -412,11 +422,15 @@ export class AdministrationComponent implements OnInit {
         this.usersWorkdays = this.users.filter(this.filterNoWork);
     }
 
-    filterNoWork(user: User) {
+    filterNoWork(user) {
         if (user.attendance) {
+            let flagWorkday = true;
             for (const item of user.attendance.workdays) {
-                return (item.end_time === null && item.type.code === 'WORK');
+                if (item.type.code === 'WORK') {
+                    flagWorkday = item.end_time === null;
+                }
             }
+            return flagWorkday;
         }
     }
 
@@ -424,12 +438,15 @@ export class AdministrationComponent implements OnInit {
         this.usersWorkdays = this.users.filter(this.filterNoLunch);
     }
 
-    filterNoLunch(user: User) {
+    filterNoLunch(user) {
         if (user.attendance) {
-            console.log((user.attendance));
+            let flagWorkday = false;
             for (const item of user.attendance.workdays) {
-                return (item.end_time === null && item.type.code === 'LUNCH');
+                if (item.type.code === 'LUNCH') {
+                    flagWorkday = item.end_time === null;
+                }
             }
+            return flagWorkday;
         }
     }
 
@@ -484,11 +501,11 @@ export class AdministrationComponent implements OnInit {
     }
 
     openModalStartWorkday(user: User) {
+        this.selectedUser = user;
         this.formWorkday.controls['start_time'].setValue(moment().format('LT'));
-        this.formWorkday.controls['observations'].setValue('');
+        this.formWorkday.controls['observation'].setValue('');
         this.formWorkday.controls['type'].setValue({code: 'WORK'});
         this.formWorkday.controls['description'].setValue('JORNADA');
-        this.formWorkday.controls['user'].setValue(user);
         this.dialogFormStartWorkday = true;
     }
 
@@ -505,7 +522,7 @@ export class AdministrationComponent implements OnInit {
     openModalEndWorkday(user: User, workday: Workday) {
         this.formWorkday.controls['id'].setValue(workday.id);
         this.formWorkday.controls['end_time'].setValue(moment().format('LT'));
-        this.formWorkday.controls['observations'].setValue('');
+        this.formWorkday.controls['observation'].setValue('');
         this.dialogFormEndWorkday = true;
     }
 
@@ -521,7 +538,7 @@ export class AdministrationComponent implements OnInit {
 
     openModalWorkday(user: User, workday: Workday) {
         this.formWorkday.controls['id'].setValue(workday.id);
-        this.formWorkday.controls['observations'].setValue('');
+        this.formWorkday.controls['observation'].setValue('');
         this.formWorkday.controls['start_time'].setValue(workday.start_time);
         this.formWorkday.controls['end_time'].setValue(workday.end_time);
         this.dialogFormWorkday = true;
@@ -534,6 +551,77 @@ export class AdministrationComponent implements OnInit {
             this.dialogFormWorkday = false;
         } else {
             this.formWorkday.markAllAsTouched();
+        }
+    }
+
+    selectInstitution(institution: Institution) {
+        this.institution = institution;
+        this.getAttendances();
+        this.fillChartActivities();
+        this.getHistoryTasks();
+    }
+
+    generateAttendancesReport() {
+        const params = new HttpParams()
+            .append('start_date', this.selectedDates[0].getFullYear() + '-' + (this.selectedDates[0].getMonth() + 1) + '-' + this.selectedDates[0].getDate())
+            .append('end_date', this.selectedDates[1].getFullYear() + '-' + (this.selectedDates[1].getMonth() + 1) + '-' + this.selectedDates[1].getDate())
+            .append('institution_id', this.institution.id.toString());
+        this._spinner.show();
+        this._attendanceService.report('attendances', params).subscribe(response => {
+            this._spinner.hide();
+            const blob = new Blob([response as Blob], {type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'});
+            const date = moment(this.selectedDate).format('MMMM - YYYY').toUpperCase();
+            const fileName = 'INFORME DE ASISTENCIA ' + this.institution.short_name + ' (' + date + ').xlsx';
+            fileSaver.saveAs(blob, fileName);
+        }, error => {
+            this._spinner.hide();
+            this.messageService.add({
+                key: 'msgToast',
+                severity: 'error',
+                summary: error.error.msg.summary,
+                detail: error.error.msg.detail,
+            });
+        });
+    }
+
+    generateTasksReport() {
+        if (this.selectedDates) {
+            if (this.selectedDates[1] != null) {
+                const params = new HttpParams()
+                    .append('start_date', this.selectedDates[0].getFullYear() + '-' + (this.selectedDates[0].getMonth() + 1) + '-' + this.selectedDates[0].getDate())
+                    .append('end_date', this.selectedDates[1].getFullYear() + '-' + (this.selectedDates[1].getMonth() + 1) + '-' + this.selectedDates[1].getDate())
+                    .append('institution_id', this.institution.id.toString());
+                this._spinner.show();
+                this._attendanceService.report('tasks', params).subscribe(response => {
+                    this._spinner.hide();
+                    const blob = new Blob([response as Blob], {type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'});
+                    const date = moment(this.selectedDates[0]).format('MMMM - YYYY').toUpperCase();
+                    const fileName = 'INFORME DE ACTIVIDADES ' + this.institution.short_name + ' (' + date + ').xlsx';
+                    fileSaver.saveAs(blob, fileName);
+                }, error => {
+                    this._spinner.hide();
+                    this.messageService.add({
+                        key: 'msgToast',
+                        severity: 'error',
+                        summary: error.error.msg.summary,
+                        detail: error.error.msg.detail,
+                    });
+                });
+            } else {
+                this.messageService.add({
+                    key: 'msgToast',
+                    severity: 'error',
+                    summary: 'Debe seleccionar la fecha de finalización',
+                    detail: 'Intente de nuevo',
+                });
+            }
+        } else {
+            this.messageService.add({
+                key: 'msgToast',
+                severity: 'error',
+                summary: 'Debe seleccionar un rango de fechas',
+                detail: 'Intente de nuevo',
+            });
         }
     }
 }

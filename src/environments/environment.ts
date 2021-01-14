@@ -16,15 +16,15 @@ export const environment = {
     API_URL_WEB: URL + 'api/web/',
     API_URL_TEACHER_EVAL: URL + 'api/teacher_eval/',
     API_URL_COMMUNITY: URL + 'api/community/',
-    API_URL_CECY: URL + 'api/cecy/',
-    
+API_URL_CECY: URL + 'api/cecy/',
+
     CLIENT_ID: '1',
-    CLIENT_SECRET: 'Cf7DlpdyvmBAFrmBJeHGTPAcNZ8EivLCWk5uaxsK',
+    CLIENT_SECRET: '32J6VCpAppxAfTWrzNBZxvN8AW2UEj7xtUU1PrRx',
     GRANT_TYPE: 'password',
-    
-    APP_ACRONYM: 'SIGA-A',
-    APP_NAME: 'SISTEMA DE GESTION ACADEMICO Y ADMINISTRATIVO'
-    
+
+    APP_ACRONYM: 'IGNUG',
+    APP_NAME: 'SISTEMA DE GESTIÓN ACADÉMICO - ADMINISTRATIVO',
+    APP_VERSION: '1.2.1'
 };
 
 /*
