@@ -1,0 +1,34 @@
+<div class="landing-body">
+  <div id="meet-mirage" class="section">
+    <div class="section-title">
+      <h1>Centro de Educación Continua "Yavirac"</h1>
+      <h5>Cursos Pago Page</h5>
+    </div>
+    <div class="feature-cards">
+      <div *ngFor="let item of coursesList" class="feature-card">
+        <div class="feature-card-img">
+          <i class="pi pi-id-card" style="font-size: 5em"></i>
+        </div>
+        <div class="feature-card-title">{{ item.course_name }}</div>
+        <div class="feature-card-content">{{ item.photo }}</div>
+        <div class="feature-card-content">{{ item.cost }}</div>
+        <div class="feature-card-content">
+          <button
+            type="button"
+            label="Matricularme"
+            pButton
+            icon="pi pi-sign-in"
+            routerLink="/dashboard/matriculas"
+          ></button>
+        </div>
+      </div>
+      <!--            <div class="feature-card">-->
+      <!--                <div class="feature-card-img">-->
+      <!--                    <img src="assets/layout/images/pages/landing/asset-unlimited.svg" alt="mirage-layout"/>-->
+      <!--                </div>-->
+      <!--                <div class="feature-card-title">Unlimited Possibilities</div>-->
+      <!--                <div class="feature-card-content">Feature subtitle sentence. Lorem ipsum dolor sit amet.</div>-->
+      <!--            </div>-->
+    </div>
+  </div>
+</div>

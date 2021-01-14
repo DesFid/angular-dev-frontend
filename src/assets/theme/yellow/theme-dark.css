@@ -1074,18 +1074,18 @@ p-multiselect.ng-dirty.ng-invalid > .p-multiselect {
   width: 20px;
   height: 20px;
 }
-.p-radiobutton .p-radiobutton-box {
-  border: 1px solid #3f4b5b;
-  background: #20262e;
-  width: 20px;
-  height: 20px;
-  color: rgba(255, 255, 255, 0.87);
-  border-radius: 50%;
-  transition: background-color 0.15s, border-color 0.15s, box-shadow 0.15s;
-}
-.p-radiobutton .p-radiobutton-box:not(.p-disabled):not(.p-highlight):hover {
-  border-color: #3f4b5b;
-}
+/*.p-radiobutton .p-radiobutton-box {*/
+/*  border: 1px solid #3f4b5b;*/
+/*  background: #20262e;*/
+/*  width: 20px;*/
+/*  height: 20px;*/
+/*  color: rgba(255, 255, 255, 0.87);*/
+/*  border-radius: 50%;*/
+/*  transition: background-color 0.15s, border-color 0.15s, box-shadow 0.15s;*/
+/*}*/
+/*.p-radiobutton .p-radiobutton-box:not(.p-disabled):not(.p-highlight):hover {*/
+/*  border-color: #3f4b5b;*/
+/*}*/
 .p-radiobutton .p-radiobutton-box:not(.p-disabled).p-focus {
   outline: 0 none;
   outline-offset: 0;

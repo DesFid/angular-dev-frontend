@@ -16,10 +16,10 @@ import {environment} from '../../environments/environment';
                     <i class="pi pi-lock" *ngIf="app.staticMenuActive"></i>
                     <i class="pi pi-lock-open" *ngIf="!app.staticMenuActive"></i>
                 </a>
-                <a routerLink="/">
-                    <img alt="logo" [src]="STORAGE_URL+institution.logo"/>
-                    <span class="app-name">{{institution.short_name}}</span>
-                </a>
+<!--                <a routerLink="/">-->
+<!--                    <img alt="logo" [src]="STORAGE_URL+institution.logo"/>-->
+<!--                    <span class="app-name">{{institution.short_name}}</span>-->
+<!--                </a>-->
             </div>
 
             <div class="layout-menu-container" (click)="onMenuClick()">

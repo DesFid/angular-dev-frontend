@@ -42,6 +42,12 @@ import {AppUnderMaintenanceComponent} from './pages/auth/app.under-maintenance.c
                         path: 'auth/under-maintenance',
                         component: AppUnderMaintenanceComponent
                     },
+                    {
+                        path: 'cecy',
+                        loadChildren: () =>
+                          import('./pages/cecy/cecy.module').then((m) => m.CedyModule),
+                        // canActivate: [AuthGuard],
+                    },
                 ]
             },
             {

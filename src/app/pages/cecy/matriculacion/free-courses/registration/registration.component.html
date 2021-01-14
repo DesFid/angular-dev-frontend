@@ -1,0 +1,229 @@
+<div class="landing-body">
+  <div id="meet-mirage" class="section">
+    <div class="section-title">
+      <h1>Centro de Educación Continua "Yavirac"</h1>
+      <h2>INSCRIPCIÓN PARA CURSOS DE CAPACITACIÓN</h2>
+    </div>
+    <div>
+      <form [formGroup]="registrationForm">
+        <div class="p-grid">
+          <h4 class="p-col-2">Nivel de instrucción</h4>
+          <h5>CODIGO</h5>
+        </div>
+        <div class="p-grid">
+          <h4 class="p-col-2">Nombre del curso</h4>
+          <h5>Nombre del curso</h5>
+        </div>
+        <div class="p-grid">
+          <h4 class="p-col-2">Nombre del curso</h4>
+          <p-radioButton name="instructionY" label="instructionY" value="instructionY" [formControl]="registrationForm.controls['modality']"></p-radioButton>
+          <p-radioButton name="instructionX" label="instructionX" value="instructionX" [formControl]="registrationForm.controls['modality']"></p-radioButton>
+        </div>
+        <!-- level_instruction -->
+        <div class="p-grid">
+          <h4 class="p-col-2">Nivel de instrucción</h4>
+          <p-dropdown
+            class="p-col-1 p-col-align-center"
+            [options]="levelInstruction"
+            formControlName="level_instruction"
+          ></p-dropdown>
+        </div>
+        <!-- company information -->
+        <h4>¿Usted trabaja?</h4>
+        <div class="p-grid">
+          <div class="p-col-12 p-md-4">
+            <p-radioButton
+              name="rg"
+              value="1"
+              label="Si"
+              formControlName="work"
+            ></p-radioButton>
+          </div>
+          <div class="p-col-12 p-md-4">
+            <p-radioButton
+              name="rg"
+              value="0"
+              label="No"
+              formControlName="work"
+            ></p-radioButton>
+          </div>
+        </div>
+        <div *ngIf="this.registrationForm.value.work == 1">
+          <h4>Datos de la Empresa</h4>
+          <div class="p-grid">
+            <label class="p-col-2">Nombre</label>
+            <input
+              class="p-col-3 p-col-align-center"
+              type="text"
+              pInputText
+              placeholder="Nombre de la empresa"
+              formControlName="company_name"
+            />
+          </div>
+          <div class="p-grid">
+            <label class="p-col-2">Dirección</label>
+            <input
+              class="p-col-3 p-col-align-center"
+              type="text"
+              pInputText
+              placeholder="Dirección de la empresa"
+              formControlName="company_address"
+            />
+          </div>
+          <div class="p-grid">
+            <label class="p-col-2">Teléfono</label>
+            <input
+              class="p-col-3 p-col-align-center"
+              type="text"
+              pInputText
+              placeholder="Teléfono de la empresa"
+              formControlName="company_phone"
+            />
+          </div>
+          <div class="p-grid">
+            <label class="p-col-2">Actividad</label>
+            <input
+              class="p-col-3 p-col-align-center"
+              type="text"
+              pInputText
+              placeholder="Actividad de la empresa"
+              formControlName="company_activity"
+            />
+          </div>
+
+          <h4>¿La empresa patrocina este curso?</h4>
+          <div class="p-grid">
+            <div class="p-col-12 p-md-4">
+              <p-radioButton
+                name="rg"
+                value="1"
+                label="Si"
+                formControlName="company_sponsor"
+              ></p-radioButton>
+            </div>
+            <div class="p-col-12 p-md-4">
+              <p-radioButton
+                name="rg"
+                value="0"
+                label="No"
+                formControlName="company_sponsor"
+              ></p-radioButton>
+            </div>
+          </div>
+          <div *ngIf="this.registrationForm.value.company_sponsor == 1">
+            <div class="p-grid">
+              <label class="p-col-2">Nombre del contacto</label>
+              <input
+                class="p-col-3 p-col-align-center"
+                type="text"
+                pInputText
+                placeholder="Nombre del contacto"
+                formControlName="name_contact"
+              />
+            </div>
+          </div>
+        </div>
+
+        <!-- know_course -->
+        <h4>¿Como se entero del curso?</h4>
+        <div class="p-grid">
+          <div class="p-col-12 p-md-4">
+            <p-checkbox
+              name="cg"
+              value="1"
+              label="Redes sociales"
+              formControlName="know_course"
+            ></p-checkbox>
+          </div>
+          <div class="p-col-12 p-md-4">
+            <p-checkbox
+              name="cg"
+              value="2"
+              label="Instituto"
+              formControlName="know_course"
+            ></p-checkbox>
+          </div>
+          <div class="p-col-12 p-md-4">
+            <p-checkbox
+              name="cg"
+              value="3"
+              label="Radio"
+              formControlName="know_course"
+            ></p-checkbox>
+          </div>
+          <!-- <div class="p-col-12 p-md-4">
+            <p-checkbox
+              name="cg"
+              value="4"
+              label="Otro"
+              formControlName="know_course"
+            ></p-checkbox>
+          </div>
+          <div
+            class="p-col-12 p-md-8"
+            *ngIf="this.registrationForm.value.know_course == 4"
+          >
+            <label class="p-col-2">Especifique</label>
+            <input
+              class="p-col-3 p-col-align-center"
+              type="text"
+              pInputText
+              placeholder="Especifique..."
+              formControlName="know_course"
+            />
+          </div> -->
+        </div>
+
+        <!-- course_follow -->
+        <h4>¿En qué cursos estaría interesado/a?</h4>
+        <div class="p-grid">
+          <div class="p-col-12 p-md-4">
+            <p-checkbox
+              name="cg"
+              value="1"
+              label="Baile"
+              formControlName="course_follow"
+            ></p-checkbox>
+          </div>
+          <div class="p-col-12 p-md-4">
+            <p-checkbox
+              name="cg"
+              value="2"
+              label="Corte y Confección"
+              formControlName="course_follow"
+            ></p-checkbox>
+          </div>
+          <div class="p-col-12 p-md-4">
+            <p-checkbox
+              name="cg"
+              value="3"
+              label="Guitarra"
+              formControlName="course_follow"
+            ></p-checkbox>
+          </div>
+          <!-- <div class="p-col-12 p-md-4">
+            <p-checkbox name="cg" value="4" label="Otro"></p-checkbox formControlName="course_follow">
+          </div>
+          <div class="p-col-12 p-md-8" *ngIf="this.registrationForm.value.course_follow == 4">
+            <label class="p-col-2">Especifique</label>
+            <input
+              class="p-col-3 p-col-align-center"
+              type="text"
+              pInputText
+              placeholder="Especifique..."
+            />
+          </div> -->
+        </div>
+      </form>
+    </div>
+    <div>
+      <button
+        type="button"
+        label="Confirmo matricula"
+        pButton
+        icon="pi pi-sign-in"
+        (click)="saveRegistrationData()"
+      ></button>
+    </div>
+  </div>
+</div>

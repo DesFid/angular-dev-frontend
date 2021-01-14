@@ -17,8 +17,8 @@ import {NgxSpinnerService} from 'ngx-spinner';
 					<!-- Logo y nomobre del sistema -->
 					<div class="layout-topbar-logo-wrapper">
 						<a href="/asd" class="layout-topbar-logo">
-							<img [src]="STORAGE_URL+institution.logo" alt="mirage-layout"/>
-							<span class="app-name">{{institution.acronym}}</span>
+<!--							<img [src]="STORAGE_URL+institution.logo" alt="mirage-layout"/>-->
+<!--							<span class="app-name">{{institution.acronym}}</span>-->
 						</a>
 					</div>
 
@@ -210,11 +210,11 @@ import {NgxSpinnerService} from 'ngx-spinner';
 						<li #profile class=" topbar-item profile-item" [ngClass]="{'active-topmenuitem': app.activeTopbarItem === profile}">
 							<a href="#" (click)="app.onTopbarItemClick($event,profile)">
                             <span class="profile-image-wrapper">
-                                <img [src]="urlAvatar" alt="avatar" style="border-radius: 50%;"/>
+<!--                                <img [src]="urlAvatar" alt="avatar" style="border-radius: 50%;"/>-->
                             </span>
 								<span class="profile-info-wrapper">
-                                <h3>{{user.first_name}} {{user.first_lastname}}</h3>
-                                <span>{{role.name}}</span>
+<!--                                <h3>{{user.first_name}} {{user.first_lastname}}</h3>-->
+<!--                                <span>{{role.name}}</span>-->
                             </span>
 							</a>
 							<!-- Perfil secundario -->
@@ -225,9 +225,9 @@ import {NgxSpinnerService} from 'ngx-spinner';
 										<img src="assets/layout/images/topbar/asset-bars.svg" alt="mirage-layout"/>
 									</div>
 									<div class="profile" routerLink="/profile">
-										<img [src]="urlAvatar" alt="avatar" style="border-radius: 50%;" width="40"/>
-										<h1>{{user.first_name}} {{user.first_lastname}}</h1>
-										<span>{{role.name}}</span>
+<!--										<img [src]="urlAvatar" alt="avatar" style="border-radius: 50%;" width="40"/>-->
+<!--										<h1>{{user.first_name}} {{user.first_lastname}}</h1>-->
+<!--										<span>{{role.name}}</span>-->
 									</div>
 								</li>
 <!--								<li class="layout-submenu-item">-->
@@ -276,11 +276,11 @@ import {NgxSpinnerService} from 'ngx-spinner';
 							[ngClass]="{'active-topmenuitem': app.activeTopbarItem === mobileProfile}">
 							<a href="#" (click)="app.onTopbarItemClick($event,mobileProfile)">
                             <span class="profile-image-wrapper">
-                                <img [src]="urlAvatar" alt="avatar" style="border-radius: 50%;"/>
+<!--                                <img [src]="urlAvatar" alt="avatar" style="border-radius: 50%;"/>-->
                             </span>
 								<span class="profile-info-wrapper">
-                                <h3>{{user.first_name}} {{user.first_lastname}}</h3>
-                                <span>{{role.name}}</span>
+<!--                                <h3>{{user.first_name}} {{user.first_lastname}}</h3>-->
+<!--                                <span>{{role.name}}</span>-->
                             </span>
 							</a>
 							<ul class="fadeInDown">
@@ -291,9 +291,9 @@ import {NgxSpinnerService} from 'ngx-spinner';
 									</div>
 									<!-- Perfil Mobile -->
 									<div class="profile" routerLink="/profile">
-										<img [src]="urlAvatar" alt="avatar" width="45"/>
-										<h1>{{user.first_name}} {{user.first_lastname}}</h1>
-										<span>{{role.name}}</span>
+<!--										<img [src]="urlAvatar" alt="avatar" width="45"/>-->
+<!--										<h1>{{user.first_name}} {{user.first_lastname}}</h1>-->
+<!--										<span>{{role.name}}</span>-->
 									</div>
 								</li>
 <!--								<li>-->
