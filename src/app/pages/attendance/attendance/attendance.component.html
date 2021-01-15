@@ -39,7 +39,7 @@
                     <div class="p-formgrid p-grid">
                         <div class="p-field p-col" *ngIf="attendance.workdays.length>=3">
                             <p-message severity="info"
-                                       text="Has completado el máximo de Jornadas y Almuerzo"></p-message>
+                                       text="Ha completado el máximo de Jornadas y Almuerzo"></p-message>
                         </div>
                         <div class="p-field p-col" *ngIf="attendance.workdays.length==0 || checked">
                             <button type="button" pButton
@@ -73,7 +73,7 @@
             <div class="p-lg-12 p-md-12 p-sm-12">
                 <p-card>
                     <p-tabView [activeIndex]="selectedTab" (onChange)="changeIndex($event)">
-                        <p-tabPanel header="Jornada" leftIcon="pi pi-home">
+                        <p-tabPanel header="Jornada y Almuerzo" leftIcon="pi pi-home">
                             <div class="p-grid">
                                 <p-message *ngIf="attendance.workdays.length===0" severity="warn"
                                            text="No tienes actividades registradas."></p-message>
@@ -109,13 +109,12 @@
                                 </div>
                             </div>
                         </p-tabPanel>
-                        <p-tabPanel header="Actividades" leftIcon="pi pi-list">
+                        <p-tabPanel header="Mis Actividades" leftIcon="pi pi-list">
                             <div class="p-text-center">
                                 <p-calendar [(ngModel)]="selectedDate"
                                             dateFormat="yy/mm/dd"
                                             icon="pi pi-calendar"
                                             showIcon="true"
-                                            [disabledDays]="[0,6]"
                                             [monthNavigator]="true"
                                             readonlyInput="true"
                                             (onSelect)="getHistoryTasks()">
@@ -190,7 +189,7 @@
                 </p-card>
             </div>
             <div class="p-lg-12 p-md-12 p-sm-12">
-                <p-card header="Histórico de actividades">
+                <p-card header="Histórico de mis actividades">
                     <p-message *ngIf="processes.length===0" severity="info"
                                text="No tienes actividades registradas."></p-message>
                     <p-chart type="pie" [data]="data" [options]="options"></p-chart>

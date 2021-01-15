@@ -13,7 +13,7 @@ import {environment} from '../../../../environments/environment';
 import {Institution} from '../../../models/ignug/institution';
 import {HttpParams} from '@angular/common/http';
 import * as fileSaver from 'file-saver';
-import {format} from 'url';
+
 
 @Component({
     selector: 'app-administration-laboral',
@@ -43,7 +43,6 @@ export class AdministrationComponent implements OnInit {
     formTask: FormGroup;
     selectedTab: number;
     displayFormTask: boolean;
-    historyAttendances: Attendance[];
     dataAttendances: any;
     dataActivities: any;
     optionsChartAttendances: any;
@@ -64,6 +63,8 @@ export class AdministrationComponent implements OnInit {
     dialogFormWorkday: boolean;
     institution: Institution;
     selectedDates: Date;
+    selectedStartDate: Date;
+    selectedEndDate: Date;
 
     constructor(private _breadcrumbService: BreadcrumbService,
                 private _attendanceService: AttendanceService,
@@ -92,7 +93,6 @@ export class AdministrationComponent implements OnInit {
         this.processes = [];
         this.selectedTab = 0;
         this.selectedTask = {type: {}};
-        this.historyAttendances = [];
         this.selectedDate = new Date();
         this.currentDate = moment();
         this.selectedValue = 'ABSENT';
@@ -106,7 +106,6 @@ export class AdministrationComponent implements OnInit {
         this.getAttendances();
         this.buildFormWorkday();
         this.buildFormTask();
-        this.getHistoryTasks();
         this.fillChartActivities();
     }
 
@@ -130,23 +129,25 @@ export class AdministrationComponent implements OnInit {
     }
 
     getAttendances() {
-        this._spinner.show();
         const params = new HttpParams().append('institution_id', this.institution.id.toString());
+        this._spinner.show();
         this._attendanceService.post('attendances/current_day', {date: this.selectedDate.toDateString()}, params)
             .subscribe(response => {
                 this._spinner.hide();
                 this.users = response['data'];
-                this.users = this.users.filter(element => element.institutions.length > 0);
-                this.usersActivities = response['data'];
-                this.usersActivities = this.usersActivities.filter(element => element.institutions.length > 0);
-                this.totalAttendances = 0;
-                this.users.forEach(user => {
-                    if (user.attendance !== null) {
-                        this.totalAttendances++;
-                    }
-                });
-                this.fillChartAttendances();
-                this.selectFilter();
+                if (this.users) {
+                    this.users = this.users.filter(element => element.institutions.length > 0);
+                    this.usersActivities = response['data'];
+                    this.usersActivities = this.usersActivities.filter(element => element.institutions.length > 0);
+                    this.totalAttendances = 0;
+                    this.users.forEach(user => {
+                        if (user.attendance !== null) {
+                            this.totalAttendances++;
+                        }
+                    });
+                    this.fillChartAttendances();
+                    this.selectFilter();
+                }
             }, error => {
                 this._spinner.hide();
                 this.msgsErrors = [{
@@ -174,41 +175,24 @@ export class AdministrationComponent implements OnInit {
         }
     }
 
-    getHistoryTasks() {
-        this._spinner.show();
-        this._attendanceService.post('attendances/user_history_attendances', {
-            start_date: this.selectedDate.toDateString(),
-            end_date: this.selectedDate.toDateString()
-        }).subscribe(response => {
-            this._spinner.hide();
-            this.historyAttendances = response['data'];
-        }, error => {
-            this._spinner.hide();
-            this.msgsErrors = [{
-                severity: 'error',
-                summary: error.error.msg.summary,
-                detail: error.error.msg.detail,
-            }];
-        });
-    }
 
     createOrUpdateTask() {
-        const params = new HttpParams().append('user_id', this.selectedUser.id.toString())
-            .append('institution_id', this.institution.id.toString())
-            .append('date', this.selectedDate.getFullYear() + '-' + (this.selectedDate.getMonth() + 1) + '-' + this.selectedDate.getDate());
-
         this.selectedTask.percentage_advance = this.formTask.controls['percentage_advance'].value;
         this.selectedTask.observation = this.formTask.controls['observation'].value;
         this.selectedTask.description = '';
         this.formTask.controls['percentage_advance'].setValue('1');
         this.formTask.controls['observation'].setValue('');
+        const params = new HttpParams()
+            .append('institution_id', this.institution.id.toString())
+            .append('user_id', this.selectedUser.id.toString())
+            .append('date', this.selectedDate.getFullYear() + '-' + (this.selectedDate.getMonth() + 1) + '-' + this.selectedDate.getDate());
+
         this._spinner.show();
         this._attendanceService.post('attendances/register_tasks', {task: this.selectedTask}, params).subscribe(response => {
             this._spinner.hide();
             this.displayFormTask = false;
             this.attendance = response['data'];
             this.getAttendances();
-            this.getHistoryTasks();
             this.fillChartActivities();
             this.messageService.add({
                 key: 'msgToast',
@@ -282,19 +266,20 @@ export class AdministrationComponent implements OnInit {
     }
 
     startWorkday() {
-        const params = new HttpParams().append('user_id', this.selectedUser.id.toString())
-            .append('institution_id', this.institution.id.toString());
         this.workday = {
             description: this.formWorkday.controls['description'].value,
             start_time: this.formWorkday.controls['start_time'].value,
             type: this.formWorkday.controls['type'].value,
             observation: this.formWorkday.controls['observation'].value
         };
+        const params = new HttpParams()
+            .append('institution_id', this.institution.id.toString())
+            .append('user_id', this.selectedUser.id.toString());
         this._spinner.show();
         this._attendanceService.post('attendances/start_day', {
             workday: this.workday,
             date: this.selectedDate.toDateString()
-        }, params).subscribe(response => {
+        },params).subscribe(response => {
             this._spinner.hide();
             this.attendance = response['data'];
             this.getAttendances();
@@ -558,13 +543,12 @@ export class AdministrationComponent implements OnInit {
         this.institution = institution;
         this.getAttendances();
         this.fillChartActivities();
-        this.getHistoryTasks();
     }
 
     generateAttendancesReport() {
         const params = new HttpParams()
-            .append('start_date', this.selectedDates[0].getFullYear() + '-' + (this.selectedDates[0].getMonth() + 1) + '-' + this.selectedDates[0].getDate())
-            .append('end_date', this.selectedDates[1].getFullYear() + '-' + (this.selectedDates[1].getMonth() + 1) + '-' + this.selectedDates[1].getDate())
+            .append('start_date', this.selectedStartDate.getFullYear() + '-' + (this.selectedStartDate.getMonth() + 1) + '-' + this.selectedStartDate.getDate())
+            .append('end_date', this.selectedEndDate.getFullYear() + '-' + (this.selectedEndDate.getMonth() + 1) + '-' + this.selectedEndDate.getDate())
             .append('institution_id', this.institution.id.toString());
         this._spinner.show();
         this._attendanceService.report('attendances', params).subscribe(response => {
@@ -585,44 +569,26 @@ export class AdministrationComponent implements OnInit {
     }
 
     generateTasksReport() {
-        if (this.selectedDates) {
-            if (this.selectedDates[1] != null) {
-                const params = new HttpParams()
-                    .append('start_date', this.selectedDates[0].getFullYear() + '-' + (this.selectedDates[0].getMonth() + 1) + '-' + this.selectedDates[0].getDate())
-                    .append('end_date', this.selectedDates[1].getFullYear() + '-' + (this.selectedDates[1].getMonth() + 1) + '-' + this.selectedDates[1].getDate())
-                    .append('institution_id', this.institution.id.toString());
-                this._spinner.show();
-                this._attendanceService.report('tasks', params).subscribe(response => {
-                    this._spinner.hide();
-                    const blob = new Blob([response as Blob], {type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'});
-                    const date = moment(this.selectedDates[0]).format('MMMM - YYYY').toUpperCase();
-                    const fileName = 'INFORME DE ACTIVIDADES ' + this.institution.short_name + ' (' + date + ').xlsx';
-                    fileSaver.saveAs(blob, fileName);
-                }, error => {
-                    this._spinner.hide();
-                    this.messageService.add({
-                        key: 'msgToast',
-                        severity: 'error',
-                        summary: error.error.msg.summary,
-                        detail: error.error.msg.detail,
-                    });
-                });
-            } else {
-                this.messageService.add({
-                    key: 'msgToast',
-                    severity: 'error',
-                    summary: 'Debe seleccionar la fecha de finalización',
-                    detail: 'Intente de nuevo',
-                });
-            }
-        } else {
+        const params = new HttpParams()
+            .append('start_date', this.selectedStartDate.getFullYear() + '-' + (this.selectedStartDate.getMonth() + 1) + '-' + this.selectedStartDate.getDate())
+            .append('end_date', this.selectedEndDate.getFullYear() + '-' + (this.selectedEndDate.getMonth() + 1) + '-' + this.selectedEndDate.getDate())
+            .append('institution_id', this.institution.id.toString());
+        this._spinner.show();
+        this._attendanceService.report('tasks', params).subscribe(response => {
+            this._spinner.hide();
+            const blob = new Blob([response as Blob], {type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'});
+            const date = moment(this.selectedDate).format('MMMM - YYYY').toUpperCase();
+            const fileName = 'INFORME DE ACTIVIDADES ' + this.institution.short_name + ' (' + date + ').xlsx';
+            fileSaver.saveAs(blob, fileName);
+        }, error => {
+            this._spinner.hide();
             this.messageService.add({
                 key: 'msgToast',
                 severity: 'error',
-                summary: 'Debe seleccionar un rango de fechas',
-                detail: 'Intente de nuevo',
+                summary: error.error.msg.summary,
+                detail: error.error.msg.detail,
             });
-        }
+        });
     }
 }
 

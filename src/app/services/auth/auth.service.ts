@@ -58,8 +58,7 @@ export class AuthService {
     }
 
     getUser(username: string, params = new HttpParams()) {
-        const url = environment.API_URL_AUTHENTICATION
-            + 'users/' + username + '?system_code=' + SYSTEMS.IGNUG;
+        const url = environment.API_URL_AUTHENTICATION + 'users/' + username;
         return this._http.get(url, {params});
     }
 
@@ -126,6 +125,5 @@ export class AuthService {
         localStorage.removeItem('permissions');
         localStorage.removeItem('isLoggedin');
         localStorage.removeItem('token');
-        localStorage.removeItem('requestURL');
     }
 }

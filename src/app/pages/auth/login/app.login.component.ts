@@ -1,20 +1,21 @@
-import {Component} from '@angular/core';
-import {ConfirmationService, Message} from 'primeng/api';
-import {Permission, Role, User} from '../../../models/auth/models.index';
-import {AuthService} from '../../../services/auth/auth.service';
-import {NgxSpinnerService} from 'ngx-spinner';
-import {Router} from '@angular/router';
-import {IgnugService} from '../../../services/ignug/ignug.service';
-import {environment} from '../../../../environments/environment';
+import {Component, OnDestroy, OnInit} from '@angular/core';
 import {FormBuilder, FormGroup, Validators} from '@angular/forms';
-import {Institution} from '../../../models/ignug/models.index';
+import {Router} from '@angular/router';
+import {environment} from '../../../../environments/environment';
+import {NgxSpinnerService} from 'ngx-spinner';
+import {ConfirmationService, Message} from 'primeng/api';
+import {IgnugService} from '../../../services/ignug/ignug.service';
+import {AuthService} from '../../../services/auth/auth.service';
+import {Permission, Role, User} from '../../../models/auth/models.index';
+import {Institution} from '../../../models/ignug/institution';
+import {Subscription} from 'rxjs';
 
 @Component({
     selector: 'app-login',
     templateUrl: './app.login.component.html',
     styleUrls: ['./login.component.scss']
 })
-export class AppLoginComponent {
+export class AppLoginComponent implements OnInit, OnDestroy {
     dark: boolean;
     checked: boolean;
     msgs: Message[];
@@ -32,6 +33,7 @@ export class AppLoginComponent {
     flagChangePassword: boolean;
     appName: string;
     appAcronym: string;
+    private subscription: Subscription;
 
     constructor(private authService: AuthService,
                 private ignugService: IgnugService,
@@ -39,14 +41,22 @@ export class AppLoginComponent {
                 private router: Router,
                 private _fb: FormBuilder,
                 private _confirmationService: ConfirmationService) {
-        this.buildFormLogin();
-        this.buildFormInstitutionRole();
-        this.buildFormChangePassword();
+        this.subscription = new Subscription();
         this.roles = [];
         this.institutions = [];
         this.user = {};
         this.appName = environment.APP_NAME;
         this.appAcronym = environment.APP_ACRONYM;
+    }
+
+    ngOnInit(): void {
+        this.buildFormLogin();
+        this.buildFormInstitutionRole();
+        this.buildFormChangePassword();
+    }
+
+    ngOnDestroy(): void {
+        this.subscription.unsubscribe();
     }
 
     buildFormLogin() {
@@ -84,13 +94,12 @@ export class AppLoginComponent {
             password: this.formLogin.controls['password'].value
         };
         this._spinner.show();
-        this.authService.login(credentials).subscribe(
+        this.subscription.add(this.authService.login(credentials).subscribe(
             response => {
                 localStorage.setItem('token', JSON.stringify(response));
                 this.authService.resetAttempts(credentials.username).subscribe(response => {
-                    console.log(response);
+
                 }, error => {
-                    console.log(error);
                     this.msgs = [{
                         severity: 'error',
                         summary: error.error.msg.summary,
@@ -100,8 +109,7 @@ export class AppLoginComponent {
                 this.getUser();
             }, error => {
                 this._spinner.hide();
-                this.removeLogin();
-                console.log(error);
+                this.authService.removeLogin();
                 if (error.status === 401) {
                     this.authService.attempts(credentials.username).subscribe(response => {
                         this.msgs = [{
@@ -123,39 +131,33 @@ export class AppLoginComponent {
                     summary: error.error.msg.summary,
                     detail: error.error.msg.detail,
                 }];
-            });
+            }));
     }
 
     getUser() {
-        this.authService.getUser(this.formLogin.controls['username'].value).subscribe(
+        this.subscription.add(this.authService.getUser(this.formLogin.controls['username'].value).subscribe(
             response => {
                 this._spinner.hide();
                 let errors = false;
                 this.user = response['data'];
-                this.roles = this.user['roles'];
+                const roles = this.user['roles'];
                 this.institutions = this.user['institutions'];
                 this.msgs = [];
                 // Error cuando no tiene asiganda una institucion
                 if (this.institutions.length === 0) {
-                    this.removeLogin();
                     this.msgs.push({
                         severity: 'warn',
-                        summary: 'No tienes una institucion asignada!',
-                        detail: 'Comunícate con el administrador!'
+                        summary: 'No tiene una institucion asignada!',
+                        detail: 'Comuníquese con el administrador!'
                     });
                     errors = true;
                 }
-                // Error cuando no tiene asigando roles
-                if (this.roles.length === 0) {
-                    this.msgs.push({
-                        severity: 'warn',
-                        summary: 'No tienes un rol asignado!',
-                        detail: 'Comunícate con el administrador!'
-                    });
+
+                if (roles.length === 0) {
                     errors = true;
                 }
+
                 if (errors) {
-                    this.removeLogin();
                     return;
                 }
                 this.flagChangePassword = !this.user['change_password'];
@@ -164,26 +166,19 @@ export class AppLoginComponent {
                     this.formInstitutionRole.controls['institution'].setValue(this.institutions[0]);
                 }
 
-                if (this.roles.length === 1) {
-                    this.formInstitutionRole.controls['role'].setValue(this.roles[0]);
-                }
-
-                localStorage.setItem('user', JSON.stringify(this.user));
-                localStorage.setItem('isLoggedin', 'true');
-
-                if (this.institutions.length === 1 && this.roles.length === 1 && !this.flagChangePassword) {
-                    this.continueLogin();
+                if (this.institutions.length === 1 && roles.length === 1 && !this.flagChangePassword) {
+                    this.formInstitutionRole.controls['role'].setValue(roles[0]);
+                    this.getPermissions();
                 }
             },
             error => {
                 this._spinner.hide();
-                this.removeLogin();
                 this.msgs = [{
                     severity: 'error',
                     summary: error.error.msg.summary,
                     detail: error.error.msg.detail
                 }];
-            });
+            }));
     }
 
     changePassword() {
@@ -236,18 +231,9 @@ export class AppLoginComponent {
         }
     }
 
-    removeLogin() {
-        localStorage.removeItem('user');
-        localStorage.removeItem('role');
-        localStorage.removeItem('institution');
-        localStorage.removeItem('permissions');
-        localStorage.removeItem('isLoggedin');
-        localStorage.removeItem('token');
-        localStorage.removeItem('requestURL');
-    }
-
     continueLogin() {
-        this.selectInstitution();
+        localStorage.setItem('user', JSON.stringify(this.user));
+        localStorage.setItem('isLoggedin', 'true');
         localStorage.setItem('institution', JSON.stringify(this.formInstitutionRole.controls['institution'].value));
         localStorage.setItem('role', JSON.stringify(this.formInstitutionRole.controls['role'].value));
         this.router.navigate(['/dashboard']);
@@ -256,28 +242,48 @@ export class AppLoginComponent {
     resetFormInstitutionRole() {
         this.roles = [];
         this.institutions = [];
+        this.msgs = [];
         this.buildFormInstitutionRole();
     }
 
-    selectInstitution() {
-        const allPermissions = this.formInstitutionRole.controls['role'].value['permissions'];
-        const permissions = [];
-        allPermissions.forEach(permission => {
-            if (permission.institution.id === this.formInstitutionRole.controls['institution'].value['id']) {
-                permissions.push(permission);
-            }
-        });
-        localStorage.setItem('permissions', JSON.stringify(permissions));
+    getRoles() {
+        this.subscription.add(this.authService.post('users/roles', {
+            institution: this.formInstitutionRole.controls['institution'].value['id'],
+            user: this.user.id
+        }).subscribe(response => {
+            this.roles = response['data'];
+            this.msgs = [];
+        }, error => {
+            this.roles = [];
+            this.msgs = [{
+                severity: 'warn',
+                summary: 'No tiene un rol asignado para esta Institución!',
+                detail: 'Comuníquese con el administrador!'
+            }];
+        }));
     }
 
-    // filterInstitution(event) {
-    //     const filtered: any[] = [];
-    //     const query = event.query;
-    //     this.institutions.forEach(institution => {
-    //         if (institution.name.toLowerCase().indexOf(query.toLowerCase()) === 0) {
-    //             filtered.push(institution);
-    //         }
-    //     });
-    //     this.filteredCountries = filtered;
-    // }
+    getPermissions() {
+        this._spinner.show();
+        this.subscription.add(this.authService.post('users/permissions', {
+            role: this.formInstitutionRole.controls['role'].value['id'],
+            institution: this.formInstitutionRole.controls['institution'].value['id']
+        }).subscribe(response => {
+            this._spinner.hide();
+            const permissions = response['data'];
+            if (!permissions) {
+                this.msgs = [{
+                    severity: 'warn',
+                    summary: 'No tiene permisos asignados!',
+                    detail: 'Comuníquese con el administrador!'
+                }];
+            } else {
+                this.msgs = [];
+                localStorage.setItem('permissions', JSON.stringify(permissions));
+                this.continueLogin();
+            }
+        }, error => {
+            this._spinner.hide();
+        }));
+    }
 }

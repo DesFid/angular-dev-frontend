@@ -24,9 +24,14 @@ import {AppUnderMaintenanceComponent} from './pages/auth/app.under-maintenance.c
                         canActivate: [AuthGuard]
                     },
                     {
+                        path: 'user',
+                        loadChildren: () => import('./pages/user/user.module').then(m => m.UserModule),
+                        // canActivate: [AuthGuard]
+                    },
+                    {
                         path: 'crud',
                         component: AppCrudComponent,
-                        canActivate: [AuthGuard]
+                        // canActivate: [AuthGuard]
                     },
                     {
                         path: 'profile',
@@ -42,17 +47,7 @@ import {AppUnderMaintenanceComponent} from './pages/auth/app.under-maintenance.c
                         path: 'teacher_eval',
                         loadChildren: () => import('./pages/teacher-eval/teacher-eval.module').then(m => m.TeacherEvalModule),
                         canActivate: [AuthGuard]
-                    },
-                    {
-                        path: 'auth/under-maintenance',
-                        component: AppUnderMaintenanceComponent
-                    },
-                    {
-                        path: 'cecy',
-                        loadChildren: () =>
-                          import('./pages/cecy/cecy.module').then((m) => m.CedyModule),
-                        // canActivate: [AuthGuard],
-                    },
+                    }
                 ]
             },
             {
