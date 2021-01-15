@@ -23,7 +23,8 @@ export class CoursesComponent implements OnInit {
   ) {
     this.breadcrumbService.setItems([
       { label: 'CEC-Y', routerLink: ['/cecy/dashboard/participants'] },
-      { label: 'Cursos Gratuitos' },
+      { label: 'Cursos Gratuitos',routerLink: ['/cecy/free-courses/courses'] },
+      { label: 'Matriculación' },
     ]);
   }
 

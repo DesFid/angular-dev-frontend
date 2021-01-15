@@ -7,7 +7,7 @@ import {AppMainComponent} from './shared/app.main.component';
 import {AppBlankComponent} from './shared/app.blank.component';
 
 // AuthGuard
-import {AuthGuard} from './shared/auth.guard';
+import {AuthGuard} from './shared/guards/auth.guard';
 import {AppCrudComponent} from './pages/crud/app.crud.component';
 import {AppUnderMaintenanceComponent} from './pages/auth/app.under-maintenance.component';
 
@@ -47,7 +47,12 @@ import {AppUnderMaintenanceComponent} from './pages/auth/app.under-maintenance.c
                         path: 'teacher_eval',
                         loadChildren: () => import('./pages/teacher-eval/teacher-eval.module').then(m => m.TeacherEvalModule),
                         canActivate: [AuthGuard]
-                    }
+                    },
+                    {
+                        path: 'cecy',
+                        loadChildren: () => import('./pages/cecy/cecy.module').then((m) => m.CedyModule),
+                        // canActivate: [AuthGuard],
+                    },
                 ]
             },
             {

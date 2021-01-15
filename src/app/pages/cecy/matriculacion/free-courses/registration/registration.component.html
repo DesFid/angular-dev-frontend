@@ -2,130 +2,217 @@
   <div id="meet-mirage" class="section">
     <div class="section-title">
       <h1>Centro de Educación Continua "Yavirac"</h1>
-      <h2>INSCRIPCIÓN PARA CURSOS DE CAPACITACIÓN</h2>
     </div>
     <div>
-      <form [formGroup]="registrationForm">
+      <form [formGroup]="registrationForm" (ngSubmit)="saveRegistrationData()">
+        <h3 class="section-title">INSCRIPCIÓN PARA CURSOS DE CAPACITACIÓN</h3>
+        <div class="p-grid">
+          <h4 class="p-col-2">Código del curso</h4>
+          <h5 class="p-col">CODIGO</h5>
+        </div>
+        <div class="p-grid">
+          <h4 class="p-col-2">Nombre del curso</h4>
+          <h5 class="p-col">Nombre del curso</h5>
+        </div>
+        <div class="p-grid">
+          <h4 class="p-col-2">Modalidad</h4>
+          <p-radioButton class="p-col-2" name="instructionY" label="instructionY" value="instructionY" formControlName="modality"></p-radioButton>
+          <p-radioButton class="p-col-2" name="instructionX" label="instructionX" value="instructionX" formControlName="modality"></p-radioButton>
+        </div>
+        <h3 class="section-title">DATOS PERSONALES</h3>
+        <div class="p-grid">
+          <h4 class="p-col-2">Apellidos y Nombres</h4>
+          <h5 class="p-col">Adrian Reichell Torres Moreno</h5>
+        </div>
+        <div class="p-grid">
+          <h4 class="p-col">Cédula de Ciudadanía</h4>
+          <h5 class="p-col">1751528967</h5>
+          <h4 class="p-col">Fecha de nacimiento</h4>
+          <h5 class="p-col">29/04/1999</h5>
+        </div>
+        <div class="p-grid">
+          <h4 class="p-col-2">Sexo</h4>
+          <p-radioButton class="p-col-2" name="instructionY" label="instructionY" value="instructionY" [formControl]="registrationForm.controls['modality']"></p-radioButton>
+          <p-radioButton class="p-col-2" name="instructionX" label="instructionX" value="instructionX" [formControl]="registrationForm.controls['modality']"></p-radioButton>
+        </div>
+        <br>
+        <div class="p-grid">
+          <h4 class="p-col-2">Etnia</h4>
+          <p-radioButton class="p-col-2" name="instructionY" label="instructionY" value="instructionY" [formControl]="registrationForm.controls['modality']"></p-radioButton>
+          <p-radioButton class="p-col-2" name="instructionX" label="instructionX" value="instructionX" [formControl]="registrationForm.controls['modality']"></p-radioButton>
+          <p-radioButton class="p-col-2" name="instructionX" label="instructionX" value="instructionX" [formControl]="registrationForm.controls['modality']"></p-radioButton>
+          <p-radioButton class="p-col-2" name="instructionX" label="instructionX" value="instructionX" [formControl]="registrationForm.controls['modality']"></p-radioButton>
+        </div>
+        <br>
+        <div class="p-grid">
+          <h4 class="p-col-2">Dirección Domiciliaria</h4>
+          <input formControlName="address" class="p-col-4" type="text" pInputText pattern="^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$"/>
+        </div>
+        <br>
+        <div class="p-grid">
+          <h4 class="p-col-2">Nro. Telefónico</h4>
+          <h4 class="p-col-2">Convencional</h4>
+          <p-inputMask class="p-col" formControlName="phone" placeholder="(02) 2222222" mask="(02) 2222222"></p-inputMask>
+          <h4 class="p-col-2">Celular</h4>
+          <p-inputMask class="p-col" formControlName="cellphone" placeholder="(09) 9999999" mask="(09) 9999999"></p-inputMask>
+        </div>
+        <br>
+        <div class="p-grid">
+          <h4 class="p-col-2">Correo electrónico</h4>
+          <input class="p-col-4" type="text" pInputText pattern="^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$"/>
+        </div>
+        <br>
         <div class="p-grid">
           <h4 class="p-col-2">Nivel de instrucción</h4>
-          <h5>CODIGO</h5>
+          <p-radioButton class="p-col-2" name="instructionY" label="instructionY" value="instructionY" [formControl]="registrationForm.controls['modality']"></p-radioButton>
+          <p-radioButton class="p-col-2" name="instructionX" label="instructionX" value="instructionX" [formControl]="registrationForm.controls['modality']"></p-radioButton>
+          <p-radioButton class="p-col-2" name="instructionX" label="instructionX" value="instructionX" [formControl]="registrationForm.controls['modality']"></p-radioButton>
         </div>
-        <div class="p-grid">
-          <h4 class="p-col-2">Nombre del curso</h4>
-          <h5>Nombre del curso</h5>
-        </div>
-        <div class="p-grid">
-          <h4 class="p-col-2">Nombre del curso</h4>
-          <p-radioButton name="instructionY" label="instructionY" value="instructionY" [formControl]="registrationForm.controls['modality']"></p-radioButton>
-          <p-radioButton name="instructionX" label="instructionX" value="instructionX" [formControl]="registrationForm.controls['modality']"></p-radioButton>
-        </div>
+        <h3 class="section-title">INFORMACIÓN LABORAL/ESTUDIOS</h3>
         <!-- level_instruction -->
         <div class="p-grid">
-          <h4 class="p-col-2">Nivel de instrucción</h4>
-          <p-dropdown
-            class="p-col-1 p-col-align-center"
-            [options]="levelInstruction"
-            formControlName="level_instruction"
-          ></p-dropdown>
+          <h4 class="p-col-4">Institución donde trabaja / Estudia</h4>
+          <input class="p-col-6" type="text" pInputText/>
+        </div>
+        <br>
+        <div class="p-grid">
+          <h4 class="p-col-4">Dirección de la institución</h4>
+          <input class="p-col-6" type="text" pInputText/>
+        </div>
+        <br>
+        <div class="p-grid">
+          <h4 class="p-col-4">Correo electrónico de la institución</h4>
+          <input class="p-col-6" type="text" pInputText/>
+        </div>
+        <br>
+        <div class="p-grid">
+          <h4 class="p-col-4">Número telefónico de la institución</h4>
+          <input class="p-col-6" type="text" pInputText/>
+        </div>
+        <br>
+        <div class="p-grid">
+          <h4 class="p-col-4">Actividad de la institución</h4>
+          <input class="p-col-6" type="text" pInputText/>
+        </div>
+        <br>
+        <div class="p-grid">
+          <h4 class="p-col-4">¿El curso es auspiciado por la institución?</h4>
+          <p-radioButton class="p-col-2" name="instructionY" label="instructionY" value="instructionY" [formControl]="registrationForm.controls['modality']"></p-radioButton>
+          <p-radioButton class="p-col-2" name="instructionX" label="instructionX" value="instructionX" [formControl]="registrationForm.controls['modality']"></p-radioButton>
+        </div>
+        <br>
+        <div class="p-grid">
+          <h4 class="p-col-4">Si está auspiciado, indique el nombre de contacto</h4>
+          <input class="p-col-6" type="text" pInputText/>
+        </div>
+        <br>
+        <div class="p-grid">
+          <h4 class="p-col-4">¿Cómo se enteró del curso?</h4>
+          <input class="p-col-6" type="text" pInputText/>
+        </div>
+        <br>
+        <div class="p-grid">
+          <h4 class="p-col-4">¿Qué otros cursos le gustaría seguir?</h4>
+          <input class="p-col-6" type="text" pInputText/>
         </div>
         <!-- company information -->
-        <h4>¿Usted trabaja?</h4>
-        <div class="p-grid">
-          <div class="p-col-12 p-md-4">
-            <p-radioButton
-              name="rg"
-              value="1"
-              label="Si"
-              formControlName="work"
-            ></p-radioButton>
-          </div>
-          <div class="p-col-12 p-md-4">
-            <p-radioButton
-              name="rg"
-              value="0"
-              label="No"
-              formControlName="work"
-            ></p-radioButton>
-          </div>
-        </div>
-        <div *ngIf="this.registrationForm.value.work == 1">
-          <h4>Datos de la Empresa</h4>
-          <div class="p-grid">
-            <label class="p-col-2">Nombre</label>
-            <input
-              class="p-col-3 p-col-align-center"
-              type="text"
-              pInputText
-              placeholder="Nombre de la empresa"
-              formControlName="company_name"
-            />
-          </div>
-          <div class="p-grid">
-            <label class="p-col-2">Dirección</label>
-            <input
-              class="p-col-3 p-col-align-center"
-              type="text"
-              pInputText
-              placeholder="Dirección de la empresa"
-              formControlName="company_address"
-            />
-          </div>
-          <div class="p-grid">
-            <label class="p-col-2">Teléfono</label>
-            <input
-              class="p-col-3 p-col-align-center"
-              type="text"
-              pInputText
-              placeholder="Teléfono de la empresa"
-              formControlName="company_phone"
-            />
-          </div>
-          <div class="p-grid">
-            <label class="p-col-2">Actividad</label>
-            <input
-              class="p-col-3 p-col-align-center"
-              type="text"
-              pInputText
-              placeholder="Actividad de la empresa"
-              formControlName="company_activity"
-            />
-          </div>
+<!--        <h4>¿Usted trabaja?</h4>-->
+<!--        <div class="p-grid">-->
+<!--          <div class="p-col-12 p-md-4">-->
+<!--            <p-radioButton-->
+<!--              name="rg"-->
+<!--              value="1"-->
+<!--              label="Si"-->
+<!--              formControlName="work"-->
+<!--            ></p-radioButton>-->
+<!--          </div>-->
+<!--          <div class="p-col-12 p-md-4">-->
+<!--            <p-radioButton-->
+<!--              name="rg"-->
+<!--              value="0"-->
+<!--              label="No"-->
+<!--              formControlName="work"-->
+<!--            ></p-radioButton>-->
+<!--          </div>-->
+<!--        </div>-->
+<!--        <div *ngIf="this.registrationForm.value.work == 1">-->
+<!--          <h4>Datos de la Empresa</h4>-->
+<!--          <div class="p-grid">-->
+<!--            <label class="p-col-2">Nombre</label>-->
+<!--            <input-->
+<!--              class="p-col-3 p-col-align-center"-->
+<!--              type="text"-->
+<!--              pInputText-->
+<!--              placeholder="Nombre de la empresa"-->
+<!--              formControlName="company_name"-->
+<!--            />-->
+<!--          </div>-->
+<!--          <div class="p-grid">-->
+<!--            <label class="p-col-2">Dirección</label>-->
+<!--            <input-->
+<!--              class="p-col-3 p-col-align-center"-->
+<!--              type="text"-->
+<!--              pInputText-->
+<!--              placeholder="Dirección de la empresa"-->
+<!--              formControlName="company_address"-->
+<!--            />-->
+<!--          </div>-->
+<!--          <div class="p-grid">-->
+<!--            <label class="p-col-2">Teléfono</label>-->
+<!--            <input-->
+<!--              class="p-col-3 p-col-align-center"-->
+<!--              type="text"-->
+<!--              pInputText-->
+<!--              placeholder="Teléfono de la empresa"-->
+<!--              formControlName="company_phone"-->
+<!--            />-->
+<!--          </div>-->
+<!--          <div class="p-grid">-->
+<!--            <label class="p-col-2">Actividad</label>-->
+<!--            <input-->
+<!--              class="p-col-3 p-col-align-center"-->
+<!--              type="text"-->
+<!--              pInputText-->
+<!--              placeholder="Actividad de la empresa"-->
+<!--              formControlName="company_activity"-->
+<!--            />-->
+<!--          </div>-->
 
-          <h4>¿La empresa patrocina este curso?</h4>
-          <div class="p-grid">
-            <div class="p-col-12 p-md-4">
-              <p-radioButton
-                name="rg"
-                value="1"
-                label="Si"
-                formControlName="company_sponsor"
-              ></p-radioButton>
-            </div>
-            <div class="p-col-12 p-md-4">
-              <p-radioButton
-                name="rg"
-                value="0"
-                label="No"
-                formControlName="company_sponsor"
-              ></p-radioButton>
-            </div>
-          </div>
-          <div *ngIf="this.registrationForm.value.company_sponsor == 1">
-            <div class="p-grid">
-              <label class="p-col-2">Nombre del contacto</label>
-              <input
-                class="p-col-3 p-col-align-center"
-                type="text"
-                pInputText
-                placeholder="Nombre del contacto"
-                formControlName="name_contact"
-              />
-            </div>
-          </div>
-        </div>
+<!--          <h4>¿La empresa patrocina este curso?</h4>-->
+<!--          <div class="p-grid">-->
+<!--            <div class="p-col-12 p-md-4">-->
+<!--              <p-radioButton-->
+<!--                name="rg"-->
+<!--                value="1"-->
+<!--                label="Si"-->
+<!--                formControlName="company_sponsor"-->
+<!--              ></p-radioButton>-->
+<!--            </div>-->
+<!--            <div class="p-col-12 p-md-4">-->
+<!--              <p-radioButton-->
+<!--                name="rg"-->
+<!--                value="0"-->
+<!--                label="No"-->
+<!--                formControlName="company_sponsor"-->
+<!--              ></p-radioButton>-->
+<!--            </div>-->
+<!--          </div>-->
+<!--          <div *ngIf="this.registrationForm.value.company_sponsor == 1">-->
+<!--            <div class="p-grid">-->
+<!--              <label class="p-col-2">Nombre del contacto</label>-->
+<!--              <input-->
+<!--                class="p-col-3 p-col-align-center"-->
+<!--                type="text"-->
+<!--                pInputText-->
+<!--                placeholder="Nombre del contacto"-->
+<!--                formControlName="name_contact"-->
+<!--              />-->
+<!--            </div>-->
+<!--          </div>-->
+<!--        </div>-->
 
         <!-- know_course -->
-        <h4>¿Como se entero del curso?</h4>
+        <!-- <h4>¿Como se entero del curso?</h4>
         <div class="p-grid">
           <div class="p-col-12 p-md-4">
             <p-checkbox
@@ -151,7 +238,7 @@
               formControlName="know_course"
             ></p-checkbox>
           </div>
-          <!-- <div class="p-col-12 p-md-4">
+           <div class="p-col-12 p-md-4">
             <p-checkbox
               name="cg"
               value="4"
@@ -171,11 +258,11 @@
               placeholder="Especifique..."
               formControlName="know_course"
             />
-          </div> -->
-        </div>
+          </div>
+        </div> -->
 
         <!-- course_follow -->
-        <h4>¿En qué cursos estaría interesado/a?</h4>
+        <!-- <h4>¿En qué cursos estaría interesado/a?</h4>
         <div class="p-grid">
           <div class="p-col-12 p-md-4">
             <p-checkbox
@@ -201,7 +288,7 @@
               formControlName="course_follow"
             ></p-checkbox>
           </div>
-          <!-- <div class="p-col-12 p-md-4">
+          <div class="p-col-12 p-md-4">
             <p-checkbox name="cg" value="4" label="Otro"></p-checkbox formControlName="course_follow">
           </div>
           <div class="p-col-12 p-md-8" *ngIf="this.registrationForm.value.course_follow == 4">
@@ -212,18 +299,17 @@
               pInputText
               placeholder="Especifique..."
             />
-          </div> -->
+          </div>
+        </div> -->
+        <div>
+          <button
+            type="submit"
+            label="Confirmo matricula"
+            pButton
+            icon="pi pi-sign-in"
+          ></button>
         </div>
       </form>
-    </div>
-    <div>
-      <button
-        type="button"
-        label="Confirmo matricula"
-        pButton
-        icon="pi pi-sign-in"
-        (click)="saveRegistrationData()"
-      ></button>
     </div>
   </div>
 </div>
