@@ -11,6 +11,8 @@ import {
 } from '@angular/forms';
 
 import { CecyServiceService } from '../../../../../services/cecy/cecy-service.service';
+import {AuthService} from '../../../../../services/auth/auth.service';
+import {ActivatedRoute} from '@angular/router';
 
 @Component({
   selector: 'app-registration',
@@ -22,11 +24,14 @@ export class RegistrationComponent implements OnInit {
   levelInstruction: SelectItem[];
   registrationForm: FormGroup;
   phone: string;
+  course: any;
 
   constructor(
     private breadcrumbService: BreadcrumbService,
     private cecyService: CecyServiceService,
-    private fb: FormBuilder
+    private fb: FormBuilder,
+    private route: ActivatedRoute,
+    private _authService: AuthService
   ) {
     this.breadcrumbService.setItems([
       { label: 'CEC-Y', routerLink: ['/cecy/dashboard/participants'] },
@@ -39,19 +44,32 @@ export class RegistrationComponent implements OnInit {
       address: new FormControl('', Validators.required),
       phone: new FormControl('', Validators.required),
       cellphone: new FormControl('', Validators.required),
-      email: new FormControl('', Validators.required),
+      email: new FormControl('', [Validators.email, Validators.required]),
       institution_name: new FormControl('', Validators.required),
       institution_address: new FormControl('', Validators.required),
       institution_email: new FormControl('', Validators.required),
       institution_phone: new FormControl('', Validators.required),
+      institution_sponsored: new FormControl('false', Validators.required),
+      institution_contact: new FormControl(''),
       institution_activity: new FormControl('', Validators.required),
-      institution_know: new FormControl('', Validators.required)
+      institution_know: new FormControl('', Validators.required),
+      institution_other_courses: new FormControl('', Validators.required),
     });
   }
 
-  ngOnInit() {
-    this.levelInstruction = [];
+  test(val) {
+    console.log(val.checkValidity());
+  }
 
+  ngOnInit() {
+    this.getUserData();
+    console.log();
+    this.route.queryParams.subscribe(
+        (params: any) => {
+          this.getCourseData(params.id);
+        }
+    )
+    this.levelInstruction = [];
     this.levelInstruction.push({
       label: 'Seleccione su nivel de intrucción',
       value: 0,
@@ -68,6 +86,19 @@ export class RegistrationComponent implements OnInit {
       label: 'Tercer nivel',
       value: { id: 3, name: 'degree' },
     });
+  }
+
+  getUserData() {
+    this._authService.get('users/' + '1').subscribe(response => {console.log('RES: ', response)});
+    console.log(this.registrationForm);
+  }
+
+  getCourseData(id) {
+    this.cecyService
+        .get(`planification/${id}`)
+        .subscribe((response: any) => {
+          this.course = response.data;
+        });
   }
 
   saveRegistrationData() {

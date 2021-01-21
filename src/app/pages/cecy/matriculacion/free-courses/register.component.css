@@ -2,7 +2,15 @@ h4 {
     margin: 0 !important;
 }
 
-
 h5 {
     margin-top: 5px !important
+}
+
+label {
+    margin-top: 5px !important;
+    font-family: inherit;
+    font-weight: 600;
+    line-height: 1.2;
+    color: inherit;
+    font-size: 1.5rem;
 }
