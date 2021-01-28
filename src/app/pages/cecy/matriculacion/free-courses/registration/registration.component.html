@@ -18,8 +18,8 @@
           <h4 class="p-col-2">Modalidad</h4>
           <p-dropdown
             class="p-col-1 p-col-align-center"
-            [options]="levelInstruction"
-            formControlName="level_instruction"
+            [options]="modality"
+            formControlName="modality"
           ></p-dropdown>
         </div>
         <h3 class="section-title">DATOS PERSONALES</h3>
@@ -49,27 +49,43 @@
         <br>
         <div class="p-grid">
           <label for="address" class="p-col-2">Dirección Domiciliaria</label>
-          <input id="address" formControlName="address" class="p-col-4" type="text" pInputText pattern="^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$"/>
+          <div class="p-fluid p-col-4">
+            <input id="address" formControlName="address" aria-describedby="username-help"
+                   [ngClass]="{'p-invalid': form.submitted && registrationForm.get('address').errors}" pInputText />
+            <small *ngIf="form.submitted && registrationForm.get('address').errors" class="p-invalid">Dirección domiciliaria requerida</small>
+          </div>
         </div>
         <br>
         <div class="p-grid">
           <h4 class="p-col-2">Nro. Telefónico</h4>
           <label for="phone" class="p-col-2">Convencional</label>
-          <p-inputMask id="phone" class="p-col" formControlName="phone" placeholder="(02) 2222222" mask="(02) 2222222"></p-inputMask>
+          <div class="p-fluid p-col">
+            <p-inputMask id="phone" class="p-col" formControlName="phone" placeholder="(02) 9999999" mask="(02) 9999999"
+                       [ngClass]="{'p-invalid': form.submitted && registrationForm.get('phone').errors}"></p-inputMask>
+            <small *ngIf="form.submitted && registrationForm.get('cellphone').errors" class="p-invalid">Número telefónico requerido</small>
+          </div>
           <label for="cellphone" class="p-col-2">Celular</label>
-          <p-inputMask id="cellphone" class="p-col" formControlName="cellphone" placeholder="(09) 9999999" mask="(09) 9999999"></p-inputMask>
+          <div class="p-fluid p-col">
+            <p-inputMask id="cellphone" formControlName="cellphone" placeholder="(09) 9999999" mask="(09) 9999999"
+                         [ngClass]="{'p-invalid': form.submitted && registrationForm.get('cellphone').errors}"></p-inputMask>
+            <small *ngIf="form.submitted && registrationForm.get('cellphone').errors" class="p-invalid">Número de celular requerido</small>
+          </div>
         </div>
         <br>
         <div class="p-grid">
           <label for="email" class="p-col-2">Correo electrónico</label>
-          <input id="email" class="p-col-4" type="text" pInputText pattern="^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$"/>
+          <div class="p-fluid p-col-4">
+            <input id="email" formControlName="email" type="email" aria-describedby="username-help"
+                   [ngClass]="{'p-invalid': form.submitted && registrationForm.get('email').errors}" pInputText />
+            <small *ngIf="form.submitted && registrationForm.get('email').errors" class="p-invalid">Correo electronico requerido</small>
+          </div>
         </div>
         <br>
         <div class="p-grid">
           <h4 class="p-col-2">Nivel de instrucción</h4>
-          <p-radioButton class="p-col-2" name="instructionY" label="instructionY" value="instructionY" [formControl]="registrationForm.controls['modality']"></p-radioButton>
-          <p-radioButton class="p-col-2" name="instructionX" label="instructionX" value="instructionX" [formControl]="registrationForm.controls['modality']"></p-radioButton>
-          <p-radioButton class="p-col-2" name="instructionX" label="instructionX" value="instructionX" [formControl]="registrationForm.controls['modality']"></p-radioButton>
+          <p-radioButton class="p-col-2" name="Primaria" label="Primaria" value="0" formControlName="level_instruction"></p-radioButton>
+          <p-radioButton class="p-col-2" name="Secundaria" label="Secundaria" value="1" formControlName="level_instruction"></p-radioButton>
+          <p-radioButton class="p-col-2" name="Final" label="Final" value="2" formControlName="level_instruction"></p-radioButton>
         </div>
         <h3 class="section-title">INFORMACIÓN LABORAL/ESTUDIOS</h3>
         <!-- level_instruction -->
@@ -127,10 +143,9 @@
         <div class="p-grid" *ngIf="registrationForm.get('institution_sponsored').value == 'true'">
           <label for="institution_contact" class="p-col-4">Si está auspiciado, indique el nombre de contacto</label>
           <div class="p-fluid p-col-6">
-            <input #institution_contact required id="institution_contact" formControlName="institution_contact" type="email" aria-describedby="username-help"
+            <input id="institution_contact" formControlName="institution_contact" type="email" aria-describedby="username-help"
                    [ngClass]="{'p-invalid': form.submitted && registrationForm.get('institution_contact').errors}" class="p-col-6" pInputText />
             <small *ngIf="form.submitted && registrationForm.get('institution_contact').errors" class="p-invalid">Nombre del contacto requerido</small>
-            <button (click)="test(institution_contact)"></button>
           </div>
         </div>
         <br>

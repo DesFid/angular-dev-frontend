@@ -21,7 +21,7 @@ import {ActivatedRoute} from '@angular/router';
 })
 export class RegistrationComponent implements OnInit {
   checkboxValuesCourseFollow: string[] = [];
-  levelInstruction: SelectItem[];
+  modality: SelectItem[];
   registrationForm: FormGroup;
   phone: string;
   course: any;
@@ -47,7 +47,7 @@ export class RegistrationComponent implements OnInit {
       email: new FormControl('', [Validators.email, Validators.required]),
       institution_name: new FormControl('', Validators.required),
       institution_address: new FormControl('', Validators.required),
-      institution_email: new FormControl('', Validators.required),
+      institution_email: new FormControl('', [Validators.email, Validators.required]),
       institution_phone: new FormControl('', Validators.required),
       institution_sponsored: new FormControl('false', Validators.required),
       institution_contact: new FormControl(''),
@@ -57,34 +57,29 @@ export class RegistrationComponent implements OnInit {
     });
   }
 
-  test(val) {
-    console.log(val.checkValidity());
-  }
-
   ngOnInit() {
     this.getUserData();
-    console.log();
     this.route.queryParams.subscribe(
         (params: any) => {
           this.getCourseData(params.id);
         }
     )
-    this.levelInstruction = [];
-    this.levelInstruction.push({
+    this.modality = [];
+    this.modality.push({
       label: 'Seleccione su nivel de intrucción',
       value: 0,
     });
-    this.levelInstruction.push({
+    this.modality.push({
       label: 'Primaria',
-      value: { id: 1, name: 'primary' },
+      value: 1,
     });
-    this.levelInstruction.push({
+    this.modality.push({
       label: 'Secundaria',
-      value: { id: 2, name: 'high-school' },
+      value: 2,
     });
-    this.levelInstruction.push({
+    this.modality.push({
       label: 'Tercer nivel',
-      value: { id: 3, name: 'degree' },
+      value: 3,
     });
   }
 
@@ -102,6 +97,6 @@ export class RegistrationComponent implements OnInit {
   }
 
   saveRegistrationData() {
-    console.log(this.registrationForm);
+    console.log(this.registrationForm.valid, this.registrationForm);
   }
 }
